@@ -28,6 +28,8 @@ public class VoxelGrid {
     #endregion
 
     #region Public dynamic getters
+    public bool FirstBlock => _blocks.Count == 0;
+
     public bool ShowVoxels {
         get {
             return _showVoxels;
@@ -83,6 +85,7 @@ public class VoxelGrid {
     /// Return all blocks that are not allready place in the grid
     /// </summary>
 
+    public List<Voxel> FloorVoxels => FlattenedVoxels.Where(v => v.Index.y == 0).ToList();
     #endregion
 
     #region constructor
@@ -341,5 +344,12 @@ public class VoxelGrid {
         }
     }
 
+
+    public List<Voxel> GetConnectionVoxels()
+    {
+        return FlattenedVoxels.Where(v => v.Connection && v.Status==VoxelState.Available).ToList();
+    }
+
+    
     #endregion
 }

@@ -11,7 +11,8 @@ public enum PatternType { PatternA = 0, PatternB = 1 }
 /// <summary>
 /// The pattern manager is a singleton class. This means there is only one instance of the PatternManager class in the entire project and it can be refered to anywhere withing the project
 /// </summary>
-public class PatternManager {
+public class PatternManager
+{
     /// <summary>
     /// Singleton object of the PatternManager class. Refer to this to access the date inside the object.
     /// </summary>
@@ -26,29 +27,38 @@ public class PatternManager {
     /// <summary>
     /// private constructor. All initial patterns will be defined in here
     /// </summary>
-    private PatternManager() {
+    private PatternManager()
+    {
         _patterns = new List<Pattern>();
-
+        //Reduce the creation of patterns with for loops
+        //Add pattern connection voxels
         List<Voxel> patternA = new List<Voxel>();
-        patternA.Add(new Voxel(new Vector3Int(0, 0, 0), true));
+        patternA.Add(new Voxel(new Vector3Int(0, 0, 0), false));
         patternA.Add(new Voxel(new Vector3Int(1, 0, 0), false));
         patternA.Add(new Voxel(new Vector3Int(2, 0, 0), false));
         patternA.Add(new Voxel(new Vector3Int(3, 0, 0), false));
         patternA.Add(new Voxel(new Vector3Int(4, 0, 0), false));
         patternA.Add(new Voxel(new Vector3Int(5, 0, 0), false));
         patternA.Add(new Voxel(new Vector3Int(6, 0, 0), false));
-        patternA.Add(new Voxel(new Vector3Int(7, 0, 0), true));
+        patternA.Add(new Voxel(new Vector3Int(7, 0, 0), false));
+        patternA.Add(new Voxel(new Vector3Int(-1, 0, 0), true));
+        patternA.Add(new Voxel(new Vector3Int(8, 0, 0), true));
+
         AddPattern(patternA, PatternType.PatternA);
 
         List<Voxel> patternB = new List<Voxel>();
-        patternB.Add(new Voxel(new Vector3Int(0, 0, 0), true));
+        patternB.Add(new Voxel(new Vector3Int(0, 0, 0), false));
+        patternB.Add(new Voxel(new Vector3Int(0, 1, 0), true));
+        patternB.Add(new Voxel(new Vector3Int(0, -1, 0), true));
         patternB.Add(new Voxel(new Vector3Int(1, 0, 0), false));
         patternB.Add(new Voxel(new Vector3Int(2, 0, 0), false));
         patternB.Add(new Voxel(new Vector3Int(3, 0, 0), false));
         patternB.Add(new Voxel(new Vector3Int(4, 0, 0), false));
         patternB.Add(new Voxel(new Vector3Int(5, 0, 0), false));
         patternB.Add(new Voxel(new Vector3Int(6, 0, 0), false));
-        patternB.Add(new Voxel(new Vector3Int(7, 0, 0), true));
+        patternB.Add(new Voxel(new Vector3Int(7, 0, 0), false));
+        patternB.Add(new Voxel(new Vector3Int(7, 1, 0), true));
+        patternB.Add(new Voxel(new Vector3Int(7, -1, 0), true));
 
         patternB.Add(new Voxel(new Vector3Int(0, 0, 1), false));
         patternB.Add(new Voxel(new Vector3Int(1, 0, 1), false));
@@ -104,14 +114,18 @@ public class PatternManager {
         patternB.Add(new Voxel(new Vector3Int(6, 0, 6), false));
         patternB.Add(new Voxel(new Vector3Int(7, 0, 6), false));
 
-        patternB.Add(new Voxel(new Vector3Int(0, 0, 7), true));
+        patternB.Add(new Voxel(new Vector3Int(0, 0, 7), false));
+        patternB.Add(new Voxel(new Vector3Int(0, 1, 7), true));
+        patternB.Add(new Voxel(new Vector3Int(0, -1, 7), true));
         patternB.Add(new Voxel(new Vector3Int(1, 0, 7), false));
         patternB.Add(new Voxel(new Vector3Int(2, 0, 7), false));
         patternB.Add(new Voxel(new Vector3Int(3, 0, 7), false));
         patternB.Add(new Voxel(new Vector3Int(4, 0, 7), false));
         patternB.Add(new Voxel(new Vector3Int(5, 0, 7), false));
         patternB.Add(new Voxel(new Vector3Int(6, 0, 7), false));
-        patternB.Add(new Voxel(new Vector3Int(7, 0, 7), true));
+        patternB.Add(new Voxel(new Vector3Int(7, 0, 7), false));
+        patternB.Add(new Voxel(new Vector3Int(7, 1, 7), false));
+        patternB.Add(new Voxel(new Vector3Int(7, -1, 7), false));
 
         AddPattern(patternB, PatternType.PatternB);
 
@@ -122,7 +136,8 @@ public class PatternManager {
     /// <param name="indices">List of indices that define the patter. The indices should always relate to Vector3In(0,0,0) as anchor point</param>
     /// <param name="type">The PatternType of this pattern to add. Each type can only exist once</param>
     /// <returns></returns>
-    public bool AddPattern(List<Voxel> voxels, PatternType type) {
+    public bool AddPattern(List<Voxel> voxels, PatternType type)
+    {
         //only add valid patterns
         if (voxels == null) return false;
         if (voxels[0].Index != Vector3Int.zero) return false;
@@ -141,11 +156,12 @@ public class PatternManager {
 /// <summary>
 /// The pattern that defines a block. Object of this class should only be made in the PatternManager
 /// </summary>
-public class Pattern {
+public class Pattern
+{
     /// <summary>
     /// The patterns are saved as ReadOnlyCollections rather than list so that once defined, the pattern can never be changed
     /// </summary>
-    public ReadOnlyCollection<Vector3Int> Indices { get; }
+    public ReadOnlyCollection<Voxel> Voxels { get; }
     public PatternType Type { get; }
 
     /// <summary>
@@ -153,12 +169,9 @@ public class Pattern {
     /// </summary>
     ///<param name = "voxels" > List of indices that define the patter.The indices should always relate to Vector3In(0,0,0) as anchor point</param>
     /// <param name="type">The PatternType of this pattern to add. Each type can only exist once</param>
-    public Pattern(List<Voxel> voxels, PatternType type) {
-        List<Vector3Int> indices = new List<Vector3Int>();
-        foreach (var voxel in voxels) {
-            indices.Add(voxel.Index);
-        }
-        Indices = new ReadOnlyCollection<Vector3Int>(indices);
+    public Pattern(List<Voxel> voxels, PatternType type)
+    {
+        Voxels = new ReadOnlyCollection<Voxel>(voxels);
         Type = type;
     }
 }

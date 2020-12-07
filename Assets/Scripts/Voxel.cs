@@ -7,8 +7,8 @@ public class Voxel {
     #region Public fields
     public Vector3Int Index;
     public List<Face> Faces = new List<Face>(6);
-    public bool connection;
-    public bool connectionEnabled;
+    public bool Connection;
+    public bool ConnectionEnabled;
 
     #endregion
 
@@ -18,7 +18,6 @@ public class Voxel {
     private VoxelGrid _grid;
     private bool _showVoxel;
     private List<Corner> _corners;
-    private Vector3Int vector3Int;
 
     #endregion
 
@@ -85,13 +84,13 @@ public class Voxel {
         _goVoxel.GetComponent<VoxelTrigger>().TriggerVoxel = this;
         _goVoxel.transform.localScale = Vector3.one * _grid.VoxelSize * 0.95f;
         Status = VoxelState.Available;
-        connection = false;
-        connectionEnabled = false;
+        Connection = false;
+        ConnectionEnabled = false;
     }
 
     public Voxel(Vector3Int index, bool connection) {
         Index = index;
-        this.connection = connection;
+        Connection = connection;
     }
     #endregion
 

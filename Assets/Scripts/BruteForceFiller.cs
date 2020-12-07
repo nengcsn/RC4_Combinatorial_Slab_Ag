@@ -5,6 +5,9 @@ using UnityEngine;
 
 public class BruteForceFiller : MonoBehaviour {
     [SerializeField]private float _voxelSize = 0.2f;
+    [SerializeField]private Vector3Int _gridDimensions = new Vector3Int(40,40,40);
+
+
 
     private int _voxelOffset = 2;
     private int _triesPerIteration = 2500;
@@ -37,7 +40,11 @@ public class BruteForceFiller : MonoBehaviour {
     /// Generate a random index within the voxelgrid
     /// </summary>
     /// <returns>The index</returns>
-    Vector3Int RandomIndex() {
+    Voxel GetRandomVoxel(List<Voxel>voxels) 
+    {
+        int randomIndex = Random.Range(0, voxels.Count);
+        return voxels[randomIndex];
+        /*
         // Search for all the voxels that have connection enabled
         List<Vector3Int> connectionVoxelIndices = new List<Vector3Int>();
         Vector3Int gridSize = _grid.GridSize;
@@ -46,7 +53,7 @@ public class BruteForceFiller : MonoBehaviour {
                 for (int z=0; z < gridSize.z; z++) {
                     Vector3Int index = new Vector3Int(x, y, z);
                     Voxel voxel = _grid.GetVoxelByIndex(index);
-                    if (voxel.connection) {
+                    if (voxel.Connection) {
                         Voxel newVoxel;
                         // connectionVoxelIndices.Add(new Vector3Int(x + 1, y, z));
                         newVoxel = _grid.GetVoxelByIndex(new Vector3Int(x + 1, y, z));
@@ -58,7 +65,7 @@ public class BruteForceFiller : MonoBehaviour {
                         connectionVoxelIndices.Add(new Vector3Int(x, y - 1, z));
                         connectionVoxelIndices.Add(new Vector3Int(x, y, z + 1));
                         connectionVoxelIndices.Add(new Vector3Int(x, y, z - 1));
-                    } else if (voxel.connectionEnabled && voxel.Status == VoxelState.Available) {
+                    } else if (voxel.ConnectionEnabled && voxel.Status == VoxelState.Available) {
                         connectionVoxelIndices.Add(new Vector3Int(x, y, z));
                     }
                 }
@@ -74,7 +81,8 @@ public class BruteForceFiller : MonoBehaviour {
             int y = Random.Range(0, _grid.GridSize.y);
             int z = Random.Range(0, _grid.GridSize.z);
             return new Vector3Int(x, y, z);
-        }
+        }*/
+
     }
 
     /// <summary>
@@ -91,9 +99,9 @@ public class BruteForceFiller : MonoBehaviour {
     // Start is called before the first frame update
     [System.Obsolete]
     void Start() {
-        _grid = BManager.CreateVoxelGrid(BoundingMesh.GetGridDimensions(_voxelOffset, _voxelSize), _voxelSize, BoundingMesh.GetOrigin(_voxelOffset, _voxelSize));
+        _grid = BManager.CreateVoxelGrid(_gridDimensions, _voxelSize, BoundingMesh.GetOrigin(_voxelOffset, _voxelSize));
         Debug.Log(_grid.GridSize);
-        _grid.DisableOutsideBoundingMesh();
+        //_grid.DisableOutsideBoundingMesh();
         Random.seed = _seed;
     }
 
@@ -124,9 +132,9 @@ public class BruteForceFiller : MonoBehaviour {
         int labelHeight = 20;
         int labelWidth = 250;
         int counter = 0;
-
+        _grid.ShowVoxels = GUI.Toggle(new Rect(padding, (padding + labelHeight) * ++counter, labelWidth, labelHeight), _grid.ShowVoxels, "Show voxels");
         if (generating) {
-            _grid.ShowVoxels = GUI.Toggle(new Rect(padding, (padding + labelHeight) * ++counter, labelWidth, labelHeight), _grid.ShowVoxels, "Show voxels");
+            //_grid.ShowVoxels = GUI.Toggle(new Rect(padding, (padding + labelHeight) * ++counter, labelWidth, labelHeight), _grid.ShowVoxels, "Show voxels");
 
             GUI.Label(new Rect(padding, (padding + labelHeight) * ++counter, labelWidth, labelHeight),
                 $"Grid {_grid.Efficiency} % filled");
@@ -156,8 +164,17 @@ public class BruteForceFiller : MonoBehaviour {
     /// </summary>
     /// <returns>returns true if it managed to add the block to the grid</returns>
     private bool TryAddRandomBlock() {
+        
+        //Instead of random rotations, find your own rotation according to some logic regarding the existing structure
         _grid.SetRandomType();
-        _grid.AddBlock(RandomIndex(), RandomRotation());
+        if (_grid.FirstBlock)
+        {
+            _grid.AddBlock(GetRandomVoxel(_grid.FloorVoxels).Index, RandomRotation());
+        }
+        else
+        {
+            _grid.AddBlock(GetRandomVoxel(_grid.GetConnectionVoxels()).Index, RandomRotation());
+        }
         bool blockAdded = _grid.TryAddCurrentBlocksToGrid();
         _grid.PurgeUnplacedBlocks();
         Debug.Log("Tried adding random block");
